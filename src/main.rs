@@ -126,7 +126,7 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let args = Args::parse();
-    info!(?args, "dir_docs starting");
+    info!(?args, "dirdocs starting");
 
     let root = PathBuf::from(&args.directory)
         .canonicalize()
@@ -155,12 +155,12 @@ async fn main() -> anyhow::Result<()> {
             anyhow::anyhow!("failed to load Awful Jade config at {:?}: {e}", config_file)
         })?;
 
-    // Load dir_docs template
+    // Load dirdocs template
     let tpl_path = awful_aj::config_dir()
         .map_err(|e| anyhow::anyhow!("config_dir() failed: {e}"))?
         .join("templates")
-        .join("dir_docs.yaml");
-    info!(template=%tpl_path.display(), "Reading dir_docs template");
+        .join("dirdocs.yaml");
+    info!(template=%tpl_path.display(), "Reading dirdocs template");
     let raw_template = fs::read_to_string(&tpl_path)
         .map_err(|e| anyhow::anyhow!("failed to read template {:?}: {e}", tpl_path))?;
     debug!(template_size_bytes = raw_template.len(), "Template loaded");

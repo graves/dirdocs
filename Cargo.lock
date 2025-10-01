@@ -1130,7 +1130,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "dir_docs"
+name = "dirdocs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
