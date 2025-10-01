@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use chrono_humanize::{Accuracy, HumanTime, Tense};
 use clap::Parser;
 use humansize::{DECIMAL, format_size};
+use lscolors::LsColors;
 use nu_ansi_term::{Color, Style};
 use nu_table::{NuTable, TableTheme, TextStyle};
 use serde::Deserialize;
@@ -13,10 +14,6 @@ use std::process::Command;
 use tabled::grid::records::vec_records::Text;
 use terminal_size::{Width as TermWidth, terminal_size};
 use walkdir::WalkDir;
-// LS_COLORS support
-use lscolors::LsColors;
-
-/* ---------------------------------------------------------------------------------- */
 
 #[derive(Parser, Debug)]
 #[clap(
@@ -36,7 +33,6 @@ struct Args {
     fun: bool,
 }
 
-/* ----- .dirdocs.nu schema (subset) ----- */
 #[derive(Debug, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 enum Node {
@@ -46,7 +42,6 @@ enum Node {
 
 #[derive(Debug, Deserialize)]
 struct DirEntry {
-    path: String,
     entries: Vec<Node>,
 }
 
@@ -57,6 +52,7 @@ struct FileEntry {
     doc: Doc,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize, Default)]
 struct Doc {
     #[serde(default)]
@@ -69,11 +65,9 @@ struct Doc {
 
 #[derive(Debug, Deserialize)]
 struct DirdocsRoot {
-    root: String,
     entries: Vec<Node>,
 }
 
-/* ----- info we keep from .dirdocs.nu ----- */
 #[derive(Debug, Default, Clone)]
 struct FileDocInfo {
     description: String,
@@ -81,7 +75,6 @@ struct FileDocInfo {
     joy: String, // stringified value
 }
 
-/* ----- internal row ----- */
 #[derive(Debug)]
 struct RowRaw {
     path: PathBuf,
@@ -93,8 +86,6 @@ struct RowRaw {
     personality: String,
     joy: String,
 }
-
-/* ----- theme hookup ----- */
 
 #[derive(Clone)]
 struct Theme {
@@ -245,8 +236,6 @@ fn parse_color(name: &str) -> Option<Color> {
     })
 }
 
-/* ---------------------------------------------------------------------------------- */
-
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
@@ -283,7 +272,6 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-/* ----- data collection ----- */
 fn collect_rows_for_dir(
     dir: &Path,
     project_root: Option<&Path>,
@@ -364,7 +352,6 @@ fn collect_rows_for_dir(
     Ok(rows)
 }
 
-/* ----- NuTable rendering ----- */
 fn print_nu_table(rows: &[RowRaw], fun: bool) {
     // Terminal width
     let mut width = terminal_size()
@@ -441,7 +428,7 @@ fn print_nu_table(rows: &[RowRaw], fun: bool) {
             Text::new(r.description.clone()),
         ];
         if fun {
-            row.push(Text::new(r.personality.clone()));
+            row.push(Text::new(as_emoji_presentation(&r.personality)));
             row.push(Text::new(r.joy.clone()));
         }
         debug_assert_eq!(row.len(), cols);
@@ -467,7 +454,6 @@ fn print_nu_table(rows: &[RowRaw], fun: bool) {
     println!("{output}");
 }
 
-/* ----- helpers ----- */
 fn is_hidden(name: &std::ffi::OsStr) -> bool {
     name.to_string_lossy().starts_with('.')
 }
@@ -532,4 +518,17 @@ fn rel_str(p: &Path, base: &Path) -> String {
         .unwrap_or_else(|| p.to_path_buf())
         .to_string_lossy()
         .into()
+}
+
+fn as_emoji_presentation(s: &str) -> String {
+    if s.is_empty() || s.contains('\u{FE0F}') {
+        return s.to_string();
+    }
+    // cheap check: if it’s a single codepoint, force emoji presentation
+    if s.chars().count() == 1 {
+        let mut out = s.to_string();
+        out.push('\u{FE0F}'); // VS16
+        return out;
+    }
+    s.to_string()
 }

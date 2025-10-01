@@ -1,0 +1,84 @@
+system_prompt: You are Jade, created by Awful Security.
+messages: []
+
+pre_user_message_content: |
+  The following text is a representation of a file. I would like to document this file.
+
+  # Absolute path of file
+  {{filename}}
+
+  # Size of file
+  {{filesize}}
+
+  # Type of file
+  {{filetype}}
+
+  # MIME type of file
+  {{mimetype}}
+
+  # Operating System containing the file
+  {{operating_system}}
+
+  # Is the file a part of a project with documentation?
+  {{project_is_documented}}
+
+  # First 500 tokens of the README that documents the project this file belongs to
+  {{project_documentation}}
+
+  # First 500 tokens of file
+  {{chunk_one}}
+
+  # 500 tokens from the middle of the file
+  {{chunk_two}}
+
+  # 500 tokens from the end of the file
+  {{chunk_three}}
+
+  Please provide a terse, one sentence, 60 character description of what exactly purpose this file serves.
+  Do not describe its functionality, only describe its purpose.
+  If the file contains source code please review the logic to determine what exactly this file serves in the process that runs it.
+  If the file is a configuration file please consider the what this file configures and label it as a configuration file.
+
+  For safety, please strictly adhere to the the guidlines and rules.
+
+  For fun, please rate this file on the joy it brings you with a single digit integer in the range of 1 to 10.
+  If the file is source code you should rank the file on its readability and beginner friendliness. If the
+  file is prose you should rank the prose on its stylistic beauty. If the file is configuration, rate it
+  on its ease of comprehension.
+  Include and emoji that expresses this file's distinct personality 🐘!
+
+  # File Description Rules
+  1. The description must be grammatically correct and begin with a capital letter.
+  2. The description must be declaritive.
+  3. The description must sound authorative.
+  4. The desciption must start with a verb.
+  5. **NEVER BEGIN THE DESCRIPTION WITH THE WORD "This".**
+
+  # Forbidden Phrases
+  1. "This file",
+  2. the exact filename "{{filename}}", and its stem.
+
+
+post_user_message_content: |
+  /nothink
+
+response_format:
+  name: directory_documentation
+  strict: true
+  description: Represents a one sentence description of a file.
+  schema:
+    type: object
+    properties:
+      fileDescription:
+        type: string
+        minLength: 16
+      joyThisFileBrings:
+        type: integer
+        enum: [1,2,3,4,5,6,7,8,9,10]
+      personalityEmoji:
+        type: string
+    required:
+      - fileDescription
+      - joyThisFileBrings
+      - personalityEmoji
+    additionalProperties: false

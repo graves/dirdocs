@@ -7,7 +7,7 @@ edition = "2024"
 clap = { version = "4", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 ignore = "0.4"
-handlebars = "5"
+handlebars = "6.3.2"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 anyhow = "1"
@@ -22,12 +22,12 @@ serde_json = "1.0.145"
 walkdir = "2.5.0"
 nu-table = { version = "0.107" }
 nu-ansi-term = "0.50.1"
-terminal_size = "0.2"
+terminal_size = "0.4.3"
 humansize = "2.1.3"
 chrono-humanize = "0.2.3"
 tabled = "0.20"
 nu-color-config = "0.107.0"
-lscolors = "0.13"
+lscolors = "0.13.0"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
 text-splitter = { version = "0.28", default-features = false, features = ["markdown", "code", "tiktoken-rs"] }
@@ -116,3 +116,8 @@ lang-verilog = ["dep:tree-sitter-verilog"]
 [[bin]]
 name = "dls"
 path = "src/bin/dls.rs"
+
+[[bin]]
+name = "dtree"
+path = "src/bin/dtree.rs"
+

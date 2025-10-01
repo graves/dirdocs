@@ -1,0 +1,13 @@
+api_key: 
+api_base: http://192.168.1.177:1234/v1
+model: jade_qwen3_4b_mlx
+context_max_tokens: 32768
+assistant_minimum_context_tokens: 2048
+should_stream: false
+stop_words:
+- |2-
+
+  <|im_start|>
+- <|im_end|>
+session_db_url: "/Users/tg/Library/Application Support/com.awful-sec.aj/aj.db"
+session_name: default
