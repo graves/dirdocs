@@ -1,6 +1,6 @@
 [package]
 name = "dirdocs"
-version = "0.2.1"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.70"
 description = "Generate terse, one-sentence documentation for files; plus Nushell-style directory viewers (dls, dtree) that surface .dirdocs.nu descriptions."
@@ -47,7 +47,7 @@ tabled = "0.20.0"
 
 awful_aj = "0.3.6"
 
-tree-sitter = "*" # core API used by language crates
+tree-sitter = "0.25" # core API used by language crates
 
 # --- Optional Tree-sitter language crates (one per language) ---
 tree-sitter-bash = { version = "*", optional = true }
