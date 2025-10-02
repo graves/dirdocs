@@ -1,6 +1,6 @@
 [package]
 name = "dirdocs"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2021"
 rust-version = "1.70"
 description = "Generate terse, one-sentence documentation for files; plus Nushell-style directory viewers (dls, dtree) that surface .dirdocs.nu descriptions."
