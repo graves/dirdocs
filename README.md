@@ -1,6 +1,7 @@
 # dirdocs
 
-`dirdocs` is a Rust-powered CLI that **provides file level documentation** by leveraging an LLM.  
+`dirdocs` is a Rust-powered CLI that **provides file level documentation** by leveraging an LLM.
+  
 It walks a directory (respecting `.gitignore` and extra ignores), hashes files, and for each *new or changed* file, it queries an LLM using the [Awful Jade](https://github.com/graves/awful_aj) configuration + prompt templates.
 
 The result is stored in a `.dirdocs.nu` file at the project root — a **Nuon-compatible JSON tree** of files, each annotated with descriptions, joy metrics, and personality emojis.
