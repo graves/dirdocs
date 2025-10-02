@@ -81,6 +81,7 @@ struct FileDocInfo {
     version,
     about = "dtree — tree-style view + descriptions from .dirdocs.nu"
 )]
+/// Args holds the command line arguments for the tree utility. It contains options to control directory traversal and output formatting.
 struct Args {
     /// Start directory (default: .).
     #[clap(default_value = ".")]

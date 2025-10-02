@@ -9,9 +9,7 @@ use crate::cache::{
     load_existing_tree, rebase_child_tree_into_existing_by_path, write_tree,
 };
 use crate::chunk::token_chunks_for_file;
-use crate::content::{
-    as_ms, file_meta, hash_file, is_probably_text, readme_context, truncate,
-};
+use crate::content::{as_ms, file_meta, hash_file, is_probably_text, readme_context, truncate};
 use crate::prompt_llm::{
     ModelResp, ask_with_retry, indent_for_yaml, render_chat_template, sanitize_description,
     sanitize_for_yaml, suppressed_block,
@@ -20,7 +18,7 @@ use crate::types::{DirdocsRoot, Doc, FileEntry};
 
 use awful_aj::config::AwfulJadeConfig;
 use chrono::Utc;
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use handlebars::Handlebars;
 use ignore::WalkBuilder;
 use serde::Serialize;
@@ -31,10 +29,26 @@ use std::time::Instant;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{EnvFilter, fmt};
 
-/// Command-line arguments for the `dirdocs` tool.
+/// Top-level CLI for `dirdocs`.
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
+    /// `cmd` is the subcommand to execute.
+    #[clap(subcommand)]
+    cmd: Command,
+}
+
+#[derive(Subcommand, Debug)]
+enum Command {
+    /// Initialize Awful Jade config and dir_docs template in your user config directory.
+    Init,
+    /// Run documentation generation (this is the behavior you had before).
+    Run(RunArgs),
+}
+
+/// Arguments for the `run` subcommand (previously your root CLI args).
+#[derive(Parser, Debug, Clone)]
+struct RunArgs {
     /// Root directory to start from.
     #[clap(long, short, default_value = ".")]
     directory: String,
@@ -49,62 +63,169 @@ struct Args {
     force: bool,
 }
 
-/// Represents metadata about a file, including its filename, size, type,
+/// User-provided data about the file, its type (e.g. text/html), and metadata.
 #[derive(Serialize)]
 struct TplData<'a> {
-    /// The filename of the file.
+    /// User-provided data about the file, its type (e.g. text/html), and metadata.
     filename: String,
-    /// The file size as a string. 
+    /// Size of the file in bytes, e.g. "1,024 kb" or "3 MB".
     filesize: String,
-    /// The file type as a string. 
+    /// File type, e.g. "text "image".
     filetype: String,
-    /// The MIME type of the file. 
+    /// MIME type, e.g. "text/html".
     mimetype: String,
-    /// The operating system associated with the file. 
+    /// Operating system the file was created on, e.g. "macOS".
     operating_system: String,
-    /// Indicates whether the project is documented. 
+    /// Indicates if the project is documented (0 or 1).
     project_is_documented: String,
-    /// A narrative description of the project. 
+    /// Location of the project documentation, e.g. "./README.md".
     project_documentation: String,
-    /// First chunk of content. 
+    /// First chunk of file contents, e.g. the first three lines.
     chunk_one: String,
-    /// Second chunk of content. 
+    /// Second chunk of file contents, e.g. the middle part.
     chunk_two: String,
-    /// Third chunk of content. 
+    /// Third chunk of file contents, e.g. the last part.
     chunk_three: String,
-    /// Additional metadata as a BTreeMap. The keys and values are references to string slices with lifetime `'a`.
+    /// Additional keyed fields, e.g. metadata copied from the file.
     #[serde(flatten)]
     extra: BTreeMap<&'a str, String>,
 }
 
-/// Handle the `main` subcommand for Awful Jade.
-///
-/// Loads and processes a directory to generate documentation using templates,
-/// file metadata, and AI models. It merges existing cache data with new
-/// files or directories, caches results for efficiency, and handles reusing
-/// previous documentation when applicable.
+const DEFAULT_CONFIG_YAML: &str = r#"api_key: 
+api_base: http://localhost:1234/v1
+model: jade_qwen3_4b_mlx
+context_max_tokens: 32768
+assistant_minimum_context_tokens: 2048
+should_stream: false
+stop_words:
+- |2-
+
+  <|im_start|>
+- <|im_end|>
+session_db_url: ""
+session_name: default
+"#;
+
+const DEFAULT_DIR_DOCS_TEMPLATE: &str = r#"system_prompt: You are Jade, created by Awful Security.
+messages: []
+
+pre_user_message_content: |
+  The following text is a representation of a file. I would like to document this file.
+
+  # Absolute path of file
+  {{filename}}
+
+  # Size of file
+  {{filesize}}
+
+  # Type of file
+  {{filetype}}
+
+  # MIME type of file
+  {{mimetype}}
+
+  # Operating System containing the file
+  {{operating_system}}
+
+  # Is the file a part of a project with documentation?
+  {{project_is_documented}}
+
+  # First 500 tokens of the README that documents the project this file belongs to
+  {{project_documentation}}
+
+  # First 500 tokens of file
+  {{chunk_one}}
+
+  # 500 tokens from the middle of the file
+  {{chunk_two}}
+
+  # 500 tokens from the end of the file
+  {{chunk_three}}
+
+  Please provide a terse, one sentence, 60 character description of what exactly purpose this file serves.
+  Do not describe its functionality, only describe its purpose.
+  If the file contains source code please review the logic to determine what exactly this file serves in the process that runs it.
+  If the file is a configuration file please consider the what this file configures and label it as a configuration file.
+
+  For safety, please strictly adhere to the the guidlines and rules.
+
+  For fun, please rate this file on the joy it brings you with a single digit integer in the range of 1 to 10.
+  If the file is source code you should rank the file on its readability and beginner friendliness. If the
+  file is prose you should rank the prose on its stylistic beauty. If the file is configuration, rate it
+  on its ease of comprehension.
+  Include and emoji that expresses this file's distinct personality 🐘!
+
+  # File Description Rules
+  1. The description must be grammatically correct and begin with a capital letter.
+  2. The description must be declaritive.
+  3. The description must sound authorative.
+  4. The desciption must start with a verb.
+  5. **NEVER BEGIN THE DESCRIPTION WITH THE WORD "This".**
+
+  # Forbidden Phrases
+  1. "This file",
+  2. the exact filename "{{filename}}", and its stem.
+
+
+post_user_message_content: |
+  /nothink
+
+response_format:
+  name: directory_documentation
+  strict: true
+  description: Represents a one sentence description of a file.
+  schema:
+    type: object
+    properties:
+      fileDescription:
+        type: string
+        minLength: 16
+      joyThisFileBrings:
+        type: integer
+        enum: [1,2,3,4,5,6,7,8,9,10]
+      personalityEmoji:
+        type: string
+    required:
+      - fileDescription
+      - joyThisFileBrings
+      - personalityEmoji
+    additionalProperties: false
+"#;
+
+/// Check if a file exists; create its directory if needed and write contents if missing.
 ///
 /// Parameters:
-/// - `args`: Parsed command-line arguments, including a directory path
-///   and optional flags like `--force`.
+/// - `path`: The path to the file or directory.
+/// - `contents`: Optional string content (if provided, it will be written to the file).
 ///
 /// Returns:
-/// - A Result: `Ok(())` on success, or an error if any step fails.
+/// - `true` if the file was created and written; otherwise, `false`.
 ///
 /// Errors:
-/// - I/O errors when reading/writing files or templates,
-/// - YAML/JSON parsing errors during config or template processing,
-/// - Errors from AI model interaction,
-/// - File not found, permission denied, or invalid paths.
+/// - Returns I/O errors when creating directories or writing files.
+///   - Specifically: `std::fs::Error` and `std::io::Error`.
 ///
 /// Notes:
-/// - The function uses a trie-based cache for efficient file lookup and
-///   re-use of existing documentation.
-/// - It respects `.gitignore` and hidden files by default, unless overridden
-///   with the `--no-git-ignore` or `--no-hidden` flags.
+/// - The function checks if the file already exists. If it does, `false` is returned.
+/// - If the directory of the file does not exist, it will be created with `create_dir_all`.
+fn write_if_missing(path: &std::path::Path, contents: &str) -> anyhow::Result<bool> {
+    if path.exists() {
+        return Ok(false);
+    }
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    fs::write(path, contents)?;
+    Ok(true)
+}
+
+/// Initialize and run the Awful Jade application.
+///
+/// This function sets up logging, parses command-line arguments, and executes
+/// either the `init` or `run` subcommand depending on user input.
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // --- tracing init ---
+    // tracing init
     let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info"));
     fmt()
         .with_env_filter(env_filter)
@@ -113,6 +234,80 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let args = Args::parse();
+
+    match args.cmd {
+        Command::Init => cmd_init(),
+        Command::Run(run_args) => cmd_run(run_args).await,
+    }
+}
+
+/// Initialize Awful Jade's configuration and templates.
+///
+/// Ensures the existence of `config.yaml` in a user-defined config directory
+/// and inserts a default documentation template. If files don't exist, they're
+/// created by copying the provided defaults.
+///
+/// # Parameters:
+/// - None: This function has no parameters.
+///
+/// # Returns:
+/// - `anyhow::Result<()>`: Always succeeds with a unit value.
+///
+/// # Errors:
+/// - Returns I/O errors when creating or reading files,
+/// - yaml parsing errors if the config file is invalid.
+fn cmd_init() -> anyhow::Result<()> {
+    // Find the user config dir for Awful Jade
+    let config_dir =
+        awful_aj::config_dir().map_err(|e| anyhow::anyhow!("config_dir() failed: {e}"))?;
+    let config_file = config_dir.join("config.yaml");
+    let templates_dir = config_dir.join("templates");
+    let template_file = templates_dir.join("dir_docs.yaml");
+
+    info!(path=%config_file.display(), "Ensuring config.yaml exists");
+    let wrote_cfg = write_if_missing(&config_file, DEFAULT_CONFIG_YAML)?;
+    if wrote_cfg {
+        info!("Created {}", config_file.display());
+    } else {
+        info!("Already exists: {}", config_file.display());
+    }
+
+    info!(path=%template_file.display(), "Ensuring templates/dir_docs.yaml exists");
+    let wrote_tpl = write_if_missing(&template_file, DEFAULT_DIR_DOCS_TEMPLATE)?;
+    if wrote_tpl {
+        info!("Created {}", template_file.display());
+    } else {
+        info!("Already exists: {}", template_file.display());
+    }
+
+    println!("✅ dirdocs init complete");
+    println!("  config:   {}", config_file.display());
+    println!("  template: {}", template_file.display());
+    Ok(())
+}
+
+/// Handle the `cmd_run` subcommand.
+///
+/// Loads and processes directory documentation files, using a template to generate structured content. 
+/// It parses configuration, reads file metadata, and uses the `handlebars` templating engine to render the prompt. 
+///
+/// # Parameters:
+/// - `args`: A `RunArgs` struct containing command-line arguments, such as directory path and ignore patterns.
+///
+/// # Returns:
+/// - `anyhow::Result<()>`, indicating success or an error during execution.
+///
+/// # Errors:
+/// - I/O errors when reading/writing files,
+/// - YAML/JSON parsing errors during template rendering or configuration loading,
+/// - Errors from `handlebars` operations,
+/// - Any error returned by the underlying API calls.
+///
+/// # Notes:
+/// - This function uses `canonialize()` to resolve paths and `pathdiff` for relative path differences.
+/// - It lazily loads configuration files, allowing optional error handling during config parsing.
+/// - Binary files are handled with safe placeholders instead of actual content.
+async fn cmd_run(args: RunArgs) -> anyhow::Result<()> {
     info!(?args, "dir_docs starting");
 
     let root = PathBuf::from(&args.directory)
@@ -120,7 +315,7 @@ async fn main() -> anyhow::Result<()> {
         .unwrap_or_else(|_| PathBuf::from(&args.directory));
     info!(root=%root.display(), "Resolved root");
 
-    // Compute label for root as relative to current working directory
+    // label root relative to CWD
     let cwd = std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."));
     let rel_root_path = pathdiff::diff_paths(&root, &cwd).unwrap_or_else(|| PathBuf::from("."));
     let root_label = {
@@ -154,11 +349,7 @@ async fn main() -> anyhow::Result<()> {
 
     // README context
     let (project_is_documented, project_doc_snippet) = readme_context(&root)?;
-    debug!(
-        project_is_documented=%project_is_documented,
-        doc_snippet_len=project_doc_snippet.len(),
-        "README context collected"
-    );
+    debug!(project_is_documented=%project_is_documented, doc_snippet_len=project_doc_snippet.len(), "README context collected");
 
     // Existing .dirdocs.nu
     let dirdocs_path = root.join(".dirdocs.nu");
@@ -190,11 +381,7 @@ async fn main() -> anyhow::Result<()> {
                 &child_tree,
                 &mut existing_by_path,
             );
-            info!(
-                child=%child_abs.display(),
-                added = existing_by_path.len() as i64 - before as i64,
-                "Merged child cache into existing_by_path"
-            );
+            info!(child=%child_abs.display(), added = existing_by_path.len() as i64 - before as i64, "Merged child cache into existing_by_path");
         } else {
             warn!(child=%child_abs.display(), "Cache file missing; skipping merge");
         }
@@ -423,6 +610,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     // Write as strict JSON (Nuon-compatible)
+    let dirdocs_path = root.join(".dirdocs.nu");
     write_tree(&dirdocs_path, &new_root)?;
 
     info!("Done");

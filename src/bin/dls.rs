@@ -87,8 +87,11 @@ struct DirdocsRoot {
 /// Represents metadata about a file for documentation purposes.
 #[derive(Debug, Default, Clone)]
 struct FileDocInfo {
+    /// The brief description of the file, typically from its README.
     description: String,
+    /// The personality of the file, such as "Acutely Perceptive".
     personality: String,
+    /// The joy associated with the file, such as "Enthusiastically".
     joy: String, 
 }
 
