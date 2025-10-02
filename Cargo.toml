@@ -1,37 +1,51 @@
 [package]
 name = "dirdocs"
 version = "0.2.0"
-edition = "2024"
+edition = "2021"
+rust-version = "1.70"
+description = "Generate terse, one-sentence documentation for files; plus Nushell-style directory viewers (dls, dtree) that surface .dirdocs.nu descriptions."
+license = "CC0-1.0"
+readme = "README.md"
+repository = "https://github.com/graves/dirdocs"
+homepage = "https://github.com/graves/dirdocs"
+documentation = "https://docs.rs/dirdocs"
+keywords = ["documentation", "nushell", "cli", "tree", "ls"]
+categories = ["command-line-utilities", "development-tools", "text-processing"]
+exclude = ["/.github", "/.gitignore", "/target", "/.vscode"]
+
+[badges]
+maintenance = { status = "actively-developed" }
 
 [dependencies]
-clap = { version = "4", features = ["derive"] }
-chrono = { version = "0.4", features = ["serde"] }
-ignore = "0.4"
-handlebars = "6.3.2"
-serde = { version = "1", features = ["derive"] }
-serde_yaml = "0.9"
 anyhow = "1"
-tokio = { version = "1.45", features = ["full"] }
-tree_magic_mini = "3"
-mime_guess = "2"
-awful_aj = "*"
-blake3 = "1.8.2"
-regex = "1.11.3"
-pathdiff = "0.2.3"
-serde_json = "1.0.145"
-walkdir = "2.5.0"
-nu-table = { version = "0.107" }
-nu-ansi-term = "0.50.1"
-terminal_size = "0.4.3"
-humansize = "2.1.3"
+chrono = { version = "0.4", features = ["serde"] }
 chrono-humanize = "0.2.3"
-tabled = "0.20"
-nu-color-config = "0.107.0"
+clap = { version = "4", features = ["derive"] }
+handlebars = "6.3.2"
+humansize = "2.1.3"
+ignore = "0.4"
 lscolors = "0.13.0"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+mime_guess = "2"
+nu-ansi-term = "0.50.1"
+nu-color-config = "0.107.0"
+nu-table = "0.107"
+pathdiff = "0.2.3"
+regex = "1.11.3"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.145"
+serde_yaml = "0.9"
+terminal_size = "0.4.3"
 text-splitter = { version = "0.28", default-features = false, features = ["markdown", "code", "tiktoken-rs"] }
 tiktoken-rs = "0.7"
+tokio = { version = "1.45", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+tree_magic_mini = "3"
+walkdir = "2.5.0"
+blake3 = "1.8.2"
+tabled = "0.20.0"
+
+awful_aj = "0.3.6"
 
 tree-sitter = "*" # core API used by language crates
 
@@ -121,3 +135,11 @@ path = "src/bin/dls.rs"
 name = "dtree"
 path = "src/bin/dtree.rs"
 
+[[bin]]
+name = "dirdocs"
+path = "src/main.rs"
+
+[package.metadata.docs.rs]
+# Build docs with a lean feature set
+features = []
+no-default-features = true
