@@ -31,41 +31,77 @@ use std::time::Instant;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{EnvFilter, fmt};
 
+/// Command-line arguments for the `dirdocs` tool.
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-    /// Root directory to start from
+    /// Root directory to start from.
     #[clap(long, short, default_value = ".")]
     directory: String,
 
-    /// Extra directory names to ignore (repeat flag or comma list)
+    /// Extra directory names to ignore (repeat flag or comma list).
     /// e.g. --ignore target,node_modules --ignore dist
     #[clap(long, short = 'i', value_delimiter = ',')]
     ignore: Vec<String>,
 
-    /// Force re-generate docs for every file, even if unchanged
+    /// Force re-generate docs for every file, even if unchanged.
     #[clap(long, short = 'f')]
     force: bool,
 }
 
-/* ---------------- Template data for Handlebars ---------------- */
-
+/// Represents metadata about a file, including its filename, size, type,
 #[derive(Serialize)]
 struct TplData<'a> {
+    /// The filename of the file.
     filename: String,
+    /// The file size as a string. 
     filesize: String,
+    /// The file type as a string. 
     filetype: String,
+    /// The MIME type of the file. 
     mimetype: String,
+    /// The operating system associated with the file. 
     operating_system: String,
+    /// Indicates whether the project is documented. 
     project_is_documented: String,
+    /// A narrative description of the project. 
     project_documentation: String,
+    /// First chunk of content. 
     chunk_one: String,
+    /// Second chunk of content. 
     chunk_two: String,
+    /// Third chunk of content. 
     chunk_three: String,
+    /// Additional metadata as a BTreeMap. The keys and values are references to string slices with lifetime `'a`.
     #[serde(flatten)]
     extra: BTreeMap<&'a str, String>,
 }
 
+/// Handle the `main` subcommand for Awful Jade.
+///
+/// Loads and processes a directory to generate documentation using templates,
+/// file metadata, and AI models. It merges existing cache data with new
+/// files or directories, caches results for efficiency, and handles reusing
+/// previous documentation when applicable.
+///
+/// Parameters:
+/// - `args`: Parsed command-line arguments, including a directory path
+///   and optional flags like `--force`.
+///
+/// Returns:
+/// - A Result: `Ok(())` on success, or an error if any step fails.
+///
+/// Errors:
+/// - I/O errors when reading/writing files or templates,
+/// - YAML/JSON parsing errors during config or template processing,
+/// - Errors from AI model interaction,
+/// - File not found, permission denied, or invalid paths.
+///
+/// Notes:
+/// - The function uses a trie-based cache for efficient file lookup and
+///   re-use of existing documentation.
+/// - It respects `.gitignore` and hidden files by default, unless overridden
+///   with the `--no-git-ignore` or `--no-hidden` flags.
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // --- tracing init ---
@@ -315,7 +351,7 @@ async fn main() -> anyhow::Result<()> {
             extra,
         };
 
-        // Render → ChatTemplate (with safe error preview)
+        // Render → ChatTemplate (with error preview)
         let tpl = match render_chat_template(&hbs, &raw_template, &data) {
             Ok(t) => t,
             Err(e) => {
@@ -326,7 +362,7 @@ async fn main() -> anyhow::Result<()> {
 
         let updated_at = Utc::now();
 
-        // ---- Timed API call (with backoff) ----
+        // Timed API call (with backoff)
         let t0 = Instant::now();
         let answer = match ask_with_retry(&cfg, "", &tpl, 5).await {
             Ok(ans) => {

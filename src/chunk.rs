@@ -11,7 +11,26 @@ pub(crate) enum SplitterKind {
     Text,
 }
 
-/// Returns (start, middle, end, used_splitter_name)
+/// Handle token chunking for a file based on its mimetype and content.
+///
+/// Splits the text in `path` into chunks of tokens, using a splitter configured
+/// with `max_tokens`. The function returns the first, middle, and last chunks of text.
+///
+/// # Parameters:
+/// - `path`: Path to the file containing text.
+/// - `mimetype`: MIME type of the file (used to determine splitter).
+/// - `max_tokens`: Maximum number of tokens per chunk.
+///
+/// # Returns:
+/// An `Option<(String, String, String, String)>` containing the first, middle, last chunks 
+/// of text and a string indicating the splitter type (`"code"`, `"markdown"`, or `"text"`).
+///
+/// # Errors:
+/// - Returns `None` if the file fails to be read or contains no content.
+///
+/// # Notes:
+/// - The function handles empty files by returning empty strings.
+/// - It uses a BPE tokenizer and configures chunking based on the file's content.
 pub(crate) fn token_chunks_for_file(
     path: &Path,
     mimetype: &str,
@@ -61,6 +80,18 @@ pub(crate) fn token_chunks_for_file(
     Some((first, mid, last, used))
 }
 
+/// Determine the appropriate splitter kind based on MIME type and file extension.
+///
+/// Parameters:
+/// - `mime`: The MIME type of the content.
+/// - `path`: A reference to a file path.
+///
+/// Returns:
+/// - A [`SplitterKind`] indicating the type of content: `Code`, `Markdown`, or `Text`.
+///
+/// Notes:
+/// - Checks MIME type for "markdown" and file extensions like .md, .markdown, or .mdx.
+/// - Uses `guess_tree_sitter_language` to determine the specific code language.
 pub(crate) fn guess_splitter(mime: &str, path: &Path) -> SplitterKind {
     if mime.to_lowercase().contains("markdown")
         || matches!(
@@ -81,7 +112,22 @@ pub(crate) fn guess_splitter(mime: &str, path: &Path) -> SplitterKind {
     SplitterKind::Text
 }
 
-/// Map MIME/extension → Tree-sitter Language if the corresponding feature is enabled.
+/// Determine the Tree-sitter language based on file extension.
+///
+/// This function attempts to guess the appropriate Tree-sitter parser for a given file path
+/// by examining its extension. It supports many common programming languages and uses
+/// configuration flags to enable specific language detection.
+///
+/// Parameters:
+/// - `_mime`: MIME type (unused in this implementation)
+/// - `path`: File path to analyze
+///
+/// Returns:
+/// - `Some(Language)` if a matching language is found, `None` otherwise.
+///
+/// Notes:
+/// - The function uses a macro to compare file extensions against known language
+///   patterns. It relies on Cargo features being enabled for specific languages.
 pub(crate) fn guess_tree_sitter_language(_mime: &str, path: &Path) -> Option<Language> {
     let ext = path
         .extension()

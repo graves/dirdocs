@@ -174,8 +174,9 @@ Together with `dirdocs`, they form a documentation-aware `tree` + `ls`.
 
 ## 🛠 Roadmap
 
+- [ ] Implement a [Bionic Font](https://github.com/ThereOHM/Fast-Font/blob/main/README_Tech.md) algorithm to make walls of text easier to read.
 - [ ] Richer JSON schema with symbol lists and token counts.
-- [ ] Integration with `awful_rustdocs` for Rust-specific symbol trees.
+- [ ] Integration with `rust_ast.nu` for Rust-specific symbol trees.
 
 ---
 
