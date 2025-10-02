@@ -50,29 +50,29 @@ awful_aj = "0.3.6"
 tree-sitter = "0.25" # core API used by language crates
 
 # --- Optional Tree-sitter language crates (one per language) ---
-tree-sitter-bash = { version = "*", optional = true }
-tree-sitter-c = { version = "*", optional = true }
-tree-sitter-cpp = { version = "*", optional = true }
-tree-sitter-c-sharp = { version = "*", optional = true }
-tree-sitter-css = { version = "*", optional = true }
-tree-sitter-embedded-template = { version = "*", optional = true } # ERB/EJS
-tree-sitter-go = { version = "*", optional = true }
-tree-sitter-haskell = { version = "*", optional = true }
-tree-sitter-html = { version = "*", optional = true }
-tree-sitter-java = { version = "*", optional = true }
-tree-sitter-javascript = { version = "*", optional = true }
-tree-sitter-jsdoc = { version = "*", optional = true }
-tree-sitter-json = { version = "*", optional = true }
-tree-sitter-julia = { version = "*", optional = true }
-tree-sitter-ocaml = { version = "*", optional = true }
-tree-sitter-php = { version = "*", optional = true }
-tree-sitter-python = { version = "*", optional = true }
-tree-sitter-regex = { version = "*", optional = true }
-tree-sitter-ruby = { version = "*", optional = true }
-tree-sitter-rust = { version = "*", optional = true }
-tree-sitter-scala = { version = "*", optional = true }
-tree-sitter-typescript = { version = "*", optional = true }
-tree-sitter-verilog = { version = "*", optional = true }
+tree-sitter-bash = { version = "0.25.0", optional = true }
+tree-sitter-c = { version = "0.24.1", optional = true }
+tree-sitter-cpp = { version = "0.23.4", optional = true }
+tree-sitter-c-sharp = { version = "0.23.1", optional = true }
+tree-sitter-css = { version = "0.25.0", optional = true }
+tree-sitter-embedded-template = { version = "0.25.0", optional = true } # ERB/EJS
+tree-sitter-go = { version = "0.25.0", optional = true }
+tree-sitter-haskell = { version = "0.23.1", optional = true }
+tree-sitter-html = { version = "0.23.2", optional = true }
+tree-sitter-java = { version = "0.23.5", optional = true }
+tree-sitter-javascript = { version = "0.25.0", optional = true }
+tree-sitter-jsdoc = { version = "0.25.0", optional = true }
+tree-sitter-json = { version = "0.24.8", optional = true }
+tree-sitter-julia = { version = "0.23.1", optional = true }
+tree-sitter-ocaml = { version = "0.24.2", optional = true }
+tree-sitter-php = { version = "0.24.2", optional = true }
+tree-sitter-python = { version = "0.25.0", optional = true }
+tree-sitter-regex = { version = "0.25.0", optional = true }
+tree-sitter-ruby = { version = "0.23.1", optional = true }
+tree-sitter-rust = { version = "0.24.0", optional = true }
+tree-sitter-scala = { version = "0.24.0", optional = true }
+tree-sitter-typescript = { version = "0.23.2", optional = true }
+tree-sitter-verilog = { version = "1.0.3", optional = true }
 
 [features]
 default = [
