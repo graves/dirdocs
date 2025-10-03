@@ -5,11 +5,10 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use clap::Parser;
+use ignore::WalkBuilder;
 use lscolors::LsColors;
 use nu_ansi_term::{Color, Style};
 use serde::Deserialize;
-use ignore::WalkBuilder;
-
 
 #[derive(Debug, Deserialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
@@ -23,7 +22,7 @@ enum Node {
 #[derive(Debug, Deserialize)]
 struct DirEntry {
     /// path is a string representing the relative path within the directory.
-    #[expect(dead_code, reason = "Field kept to match .dirdocs.nu schema")]
+    #[expect(dead_code, reason = "Field kept to match .dirdocs.nuon schema")]
     path: String,
     /// Recursive list of directory entries.
     entries: Vec<Node>,
@@ -48,11 +47,11 @@ struct Doc {
     fileDescription: String,
     /// The file's joyfulness, defaulting to empty JSON value.
     #[serde(default, alias = "howMuchJoyDoesThisFileBringYou")]
-    #[expect(dead_code, reason = "Field kept to match .dirdocs.nu schema")]
+    #[expect(dead_code, reason = "Field kept to match .dirdocs.nuon schema")]
     joyThisFileBrings: serde_json::Value,
     /// The file's personality emoji, defaulting to empty string.
     #[serde(default, alias = "emojiThatExpressesThisFilesPersonality")]
-    #[expect(dead_code, reason = "Field kept to match .dirdocs.nu schema")]
+    #[expect(dead_code, reason = "Field kept to match .dirdocs.nuon schema")]
     personalityEmoji: String,
 }
 
@@ -60,8 +59,8 @@ struct Doc {
 /// Contains a placeholder `root` and managed nodes under it.
 #[derive(Debug, Deserialize)]
 struct DirdocsRoot {
-    /// `root` is a placeholder kept to match .dirdocs.nu schema.
-    #[expect(dead_code, reason = "Field kept to match .dirdocs.nu schema")]
+    /// `root` is a placeholder kept to match .dirdocs.nuon schema.
+    #[expect(dead_code, reason = "Field kept to match .dirdocs.nuon schema")]
     root: String,
     /// The collection of nodes under the root, managed by directory tree logic.
     entries: Vec<Node>,
@@ -79,7 +78,7 @@ struct FileDocInfo {
 #[clap(
     author,
     version,
-    about = "dtree — tree-style view + descriptions from .dirdocs.nu"
+    about = "dtree — tree-style view + descriptions from .dirdocs.nuon"
 )]
 /// Args holds the command line arguments for the tree utility. It contains options to control directory traversal and output formatting.
 struct Args {
@@ -103,12 +102,12 @@ struct Args {
 /// `Theme` represents a directory navigation theme, storing visual styles and enabled status.
 #[derive(Clone)]
 struct Theme {
-    /// A `Style` for the header, kept to match .dirdocs.nu schema.
-    #[expect(dead_code, reason = "Field kept to match .dirdocs.nu schema")]
+    /// A `Style` for the header, kept to match .dirdocs.nuon schema.
+    #[expect(dead_code, reason = "Field kept to match .dirdocs.nuon schema")]
     header: Style,
-    /// A `Style` for directory names, kept to match .dirdocs.nu schema.
+    /// A `Style` for directory names, kept to match .dirdocs.nuon schema.
     dir: Style,
-    /// A `Style` for file names, kept to match .dirdocs.nu schema.
+    /// A `Style` for file names, kept to match .dirdocs.nuon schema.
     file: Style,
     /// Whether the theme is enabled.
     enabled: bool,
@@ -348,7 +347,7 @@ fn parse_color(name: &str) -> Option<Color> {
     })
 }
 
-/// Handle the `dtree` command, which displays a tree-style view of directory contents along with file descriptions loaded from `.dirdocs.nu` files.
+/// Handle the `dtree` command, which displays a tree-style view of directory contents along with file descriptions loaded from `.dirdocs.nuon` files.
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
@@ -407,12 +406,12 @@ fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Prints a tree-style view of the directory structure, with colored names and optional descriptions from `.dirdocs.nu` files.
+/// Prints a tree-style view of the directory structure, with colored names and optional descriptions from `.dirdocs.nuon` files.
 ///
 /// Parameters:
 /// - `dir`: The directory to start printing from.
 /// - `project_root`: Optional path to the project root (for relative description lookups).
-/// - `desc_map`: A map of file paths to their descriptions, loaded from `.dirdocs.nu` files.
+/// - `desc_map`: A map of file paths to their descriptions, loaded from `.dirdocs.nuon` files.
 /// - `ignore`: A set of directory names to ignore (case-sensitive).
 /// - `prefix`: The current indentation level for the tree.
 /// - `theme`: Custom styling configuration for colors and symbols.
@@ -425,12 +424,12 @@ fn main() -> anyhow::Result<()> {
 ///
 /// Errors:
 /// - I/O errors when reading/writing files or directory entries.
-/// - Deserialization errors from `.dirdocs.nu` files.
+/// - Deserialization errors from `.dirdocs.nuon` files.
 /// - Errors when resolving or applying custom themes.
 ///
 /// Notes:
 /// - The tree is printed recursively, with directory structures showing under their parent.
-/// - Descriptions from `.dirdocs.nu` are added if available, with emoji-based connector support.
+/// - Descriptions from `.dirdocs.nuon` are added if available, with emoji-based connector support.
 /// - The `prefix` is built incrementally to reflect directory depth, with `├──`, `└──`, or emoji-based symbols.
 fn print_tree_dir(
     dir: &Path,
@@ -635,9 +634,9 @@ fn paint_name(
     }
 }
 
-/// Finds the project root by searching for a `.dirdocs.nu` file starting from the given directory.
+/// Finds the project root by searching for a `.dirdocs.nuon` file starting from the given directory.
 ///
-/// This function traverses up the directory hierarchy, checking for a `.dirdocs.nu` file in each
+/// This function traverses up the directory hierarchy, checking for a `.dirdocs.nuon` file in each
 /// parent directory. If found, it returns the path to that root directory as a `PathBuf`; otherwise,
 /// it returns `None`.
 ///
@@ -645,19 +644,19 @@ fn paint_name(
 /// - `start`: A reference to the starting directory path.
 ///
 /// Returns:
-/// - An `Option<PathBuf>` representing the project root, or `None` if no `.dirdocs.nu` file is found.
+/// - An `Option<PathBuf>` representing the project root, or `None` if no `.dirdocs.nuon` file is found.
 ///
 /// Errors:
 /// - This function does not return explicit error values, but may panic if `cur.parent()?` fails
 ///   (e.g., when the starting path is already at the root).
 ///
 /// Notes:
-/// - The search continues upward until either a `.dirdocs.nu` file is found or the root of the filesystem
+/// - The search continues upward until either a `.dirdocs.nuon` file is found or the root of the filesystem
 ///   is reached.
 fn find_project_root(start: &Path) -> Option<PathBuf> {
     let mut cur = start.to_path_buf();
     loop {
-        if cur.join(".dirdocs.nu").exists() {
+        if cur.join(".dirdocs.nuon").exists() {
             return Some(cur);
         }
         let parent = cur.parent()?.to_path_buf();
@@ -670,7 +669,7 @@ fn find_project_root(start: &Path) -> Option<PathBuf> {
 
 /// Load description files from a diredocs root.
 ///
-/// Parses (`root.join(".dirdocs.nu")`) to get a root diredocs tree,
+/// Parses (`root.join(".dirdocs.nuon")`) to get a root diredocs tree,
 /// and recursively visits nodes to collect file descriptions.
 /// Each `Node::File`'s description is stored in a map with the full path.
 /// Returns an error if reading or parsing fails.
@@ -687,7 +686,7 @@ fn find_project_root(start: &Path) -> Option<PathBuf> {
 /// - or invalid diredocs structure.
 fn load_descriptions(root: &Path) -> anyhow::Result<HashMap<String, FileDocInfo>> {
     let mut map: HashMap<String, FileDocInfo> = HashMap::new();
-    let s = fs::read_to_string(root.join(".dirdocs.nu"))?;
+    let s = fs::read_to_string(root.join(".dirdocs.nuon"))?;
     let parsed: DirdocsRoot = serde_json::from_str(&s)?;
 
     /// Recursively visits all nodes in a directory structure, collecting documentation info.

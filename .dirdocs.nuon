@@ -1,0 +1,226 @@
+{
+  "root": ".",
+  "updated_at": "2025-10-03T07:06:54.586041Z",
+  "entries": [
+    {
+      "kind": "file",
+      "name": "Cargo.lock",
+      "path": "Cargo.lock",
+      "hash": "008c70eb33aee454117921e398315ec30e312ff63dd797ce4a8a9d4ec9a0f076",
+      "updated_at": "2025-10-03T07:05:18.061767Z",
+      "doc": {
+        "fileDescription": "Manages dependency locking for the dirdocs project.",
+        "joyThisFileBrings": 7,
+        "personalityEmoji": "🦀"
+      }
+    },
+    {
+      "kind": "dir",
+      "name": "src",
+      "path": "src",
+      "updated_at": "2025-10-03T07:06:54.586069Z",
+      "entries": [
+        {
+          "kind": "file",
+          "name": "main.rs",
+          "path": "src/main.rs",
+          "hash": "ca0985cdcfbeb054da6ff7f9248100cdcd1a97d45797557d9ec99070ba7e5f66",
+          "updated_at": "2025-10-03T07:06:26.919997Z",
+          "doc": {
+            "fileDescription": "Documents files with AI using a CLI tool.",
+            "joyThisFileBrings": 9,
+            "personalityEmoji": "🦀"
+          }
+        },
+        {
+          "kind": "dir",
+          "name": "bin",
+          "path": "bin",
+          "updated_at": "2025-10-03T07:06:54.586056Z",
+          "entries": [
+            {
+              "kind": "file",
+              "name": "README.md",
+              "path": "src/bin/README.md",
+              "hash": "ea66bb9e1012b762e9a7b8162012b9e34b44fc1abeee12b66d85a713fe6ae1dd",
+              "updated_at": "2025-10-03T07:06:17.526647Z",
+              "doc": {
+                "fileDescription": "Documents the dirdocs project's binaries (dls and dtree) for macOS, providing usage details.",
+                "joyThisFileBrings": 7,
+                "personalityEmoji": "🦀"
+              }
+            },
+            {
+              "kind": "file",
+              "name": "dtree.rs",
+              "path": "src/bin/dtree.rs",
+              "hash": "ed1b84e632d7ac1575936484624de05d85959bbdff6b6741329e4c5a68264a64",
+              "updated_at": "2025-10-03T07:06:07.840435Z",
+              "doc": {
+                "fileDescription": "Documents and analyzes directory structures using an LLM for file metadata.",
+                "joyThisFileBrings": 8,
+                "personalityEmoji": "🦀"
+              }
+            },
+            {
+              "kind": "file",
+              "name": "dls.rs",
+              "path": "src/bin/dls.rs",
+              "hash": "668d61ee3c0473457367fac0ce00666af535c0ad55985a256744417cc907aabf",
+              "updated_at": "2025-10-03T07:05:59.621989Z",
+              "doc": {
+                "fileDescription": "A Rust program that generates documentation for files and directories by querying an AI model.",
+                "joyThisFileBrings": 8,
+                "personalityEmoji": "🦀"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "file",
+          "name": "chunk.rs",
+          "path": "src/chunk.rs",
+          "hash": "1398d496d5f1759f2569a90f7e15de562ef1cc6abb99042856f5d37c7b4c6bdd",
+          "updated_at": "2025-10-03T07:05:44.166693Z",
+          "doc": {
+            "fileDescription": "Processes files to generate token chunks for LLM analysis.",
+            "joyThisFileBrings": 7,
+            "personalityEmoji": "🦀"
+          }
+        },
+        {
+          "kind": "file",
+          "name": "content.rs",
+          "path": "src/content.rs",
+          "hash": "890daf8508e9991ecbdf4debe4cd1568cd73d8165bf93a7337045e14b2b786f3",
+          "updated_at": "2025-10-03T07:06:44.926012Z",
+          "doc": {
+            "fileDescription": "Handles file metadata and documentation generation for the dirdocs CLI tool.",
+            "joyThisFileBrings": 8,
+            "personalityEmoji": "🦀"
+          }
+        },
+        {
+          "kind": "file",
+          "name": "cache.rs",
+          "path": "src/cache.rs",
+          "hash": "d3a7173f852295ec6f2eb8d258c8fc98f79545f36c149905e1e682af2a468750",
+          "updated_at": "2025-10-03T07:05:36.218905Z",
+          "doc": {
+            "fileDescription": "The file implements a caching mechanism for directory documentation generation in Rust.",
+            "joyThisFileBrings": 7,
+            "personalityEmoji": "🦀"
+          }
+        },
+        {
+          "kind": "file",
+          "name": "prompt_llm.rs",
+          "path": "src/prompt_llm.rs",
+          "hash": "985b21fb667ec08c77545bdde60a0217e3cf74ab0caea1df92621d3d16b3d545",
+          "updated_at": "2025-10-03T07:06:35.420502Z",
+          "doc": {
+            "fileDescription": "The core logic for generating file-level documentation using an LLM.",
+            "joyThisFileBrings": 9,
+            "personalityEmoji": "🦀"
+          }
+        },
+        {
+          "kind": "file",
+          "name": "types.rs",
+          "path": "src/types.rs",
+          "hash": "e5f1f7ff801cd556fd767406336ce4c41b8b57eefe02319c86458c32b257ec10",
+          "updated_at": "2025-10-03T07:05:52.178750Z",
+          "doc": {
+            "fileDescription": "Documents the data structures used in dirdocs for directory scanning and file metadata.",
+            "joyThisFileBrings": 8,
+            "personalityEmoji": "🦀"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "file",
+      "name": "Cargo.toml",
+      "path": "Cargo.toml",
+      "hash": "013723301708863280f8b4a0e49e7a5cc42b3059b9a37e153d6ae8e19e2fd2e9",
+      "updated_at": "2025-10-03T07:04:42.154168Z",
+      "doc": {
+        "fileDescription": "Generates file-level documentation using an LLM and stores it in a JSON format.",
+        "joyThisFileBrings": 8,
+        "personalityEmoji": "🦀"
+      }
+    },
+    {
+      "kind": "file",
+      "name": "Justfile",
+      "path": "Justfile",
+      "hash": "23f7d4c497a16bacc604864b3459dda989e81cc17d4cd13aa4992c895f6f8bb7",
+      "updated_at": "2025-10-03T07:05:04.979770Z",
+      "doc": {
+        "fileDescription": "Documents a Rust CLI tool for generating file-level documentation via LLMs.",
+        "joyThisFileBrings": 8,
+        "personalityEmoji": "🦀"
+      }
+    },
+    {
+      "kind": "file",
+      "name": "README.md",
+      "path": "README.md",
+      "hash": "54d9ef9974b9441c7e66587751b77b960a5c61eadb7bf42cb286cb6c8079421a",
+      "updated_at": "2025-10-03T07:05:27.541149Z",
+      "doc": {
+        "fileDescription": "Documents the dirdocs CLI tool for file-level documentation using LLMs and Nuon-compatible JSON output.",
+        "joyThisFileBrings": 9,
+        "personalityEmoji": "🦀"
+      }
+    },
+    {
+      "kind": "file",
+      "name": "dir_docs.yaml",
+      "path": "dir_docs.yaml",
+      "hash": "387e79999ca6ca1ed78470db43f1c776d2da068e03ddea9a75791a5db4f33a15",
+      "updated_at": "2025-10-03T07:04:50.536920Z",
+      "doc": {
+        "fileDescription": "Documents directory structure and file metadata using an LLM",
+        "joyThisFileBrings": 8,
+        "personalityEmoji": "📊"
+      }
+    },
+    {
+      "kind": "file",
+      "name": "config.yaml",
+      "path": "config.yaml",
+      "hash": "11d6189d5136f1b153571bc14f99b2d956094bcd9684fbed62506dbfd4e7021a",
+      "updated_at": "2025-10-03T07:05:13.329743Z",
+      "doc": {
+        "fileDescription": "Configures the API and model settings for the Awful Jade tool.",
+        "joyThisFileBrings": 8,
+        "personalityEmoji": "⚙️"
+      }
+    },
+    {
+      "kind": "file",
+      "name": "screenshot.png",
+      "path": "screenshot.png",
+      "hash": "98802c45c989801230e660ae65bee20d21bdca0344afe89e0364c3cd1697effb",
+      "updated_at": "2025-10-03T07:05:09.118679Z",
+      "doc": {
+        "fileDescription": "Captures a visual record of the dirdocs CLI's output in action.",
+        "joyThisFileBrings": 9,
+        "personalityEmoji": "📷"
+      }
+    },
+    {
+      "kind": "file",
+      "name": "LICENSE",
+      "path": "LICENSE",
+      "hash": "b7a6a1ef44aa3647db780392b4fa023c613fd9fa482678bb7a729e5fe385ca00",
+      "updated_at": "2025-10-03T07:04:57.431644Z",
+      "doc": {
+        "fileDescription": "A CC0 license for the dirdocs project, granting broad public rights to use and distribute its contents freely.",
+        "joyThisFileBrings": 8,
+        "personalityEmoji": "🎭"
+      }
+    }
+  ]
+}

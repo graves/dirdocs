@@ -19,7 +19,7 @@ use walkdir::WalkDir;
 #[clap(
     author,
     version,
-    about = "dls — Nushell-style `ls` + description from .dirdocs.nu"
+    about = "dls — Nushell-style `ls` + description from .dirdocs.nuon"
 )]
 
 /// Command-line arguments for the dls tool. Contains options to specify a directory, recurse into subdirectories, and show additional file information.
@@ -52,7 +52,7 @@ struct DirEntry {
     entries: Vec<Node>,
 }
 
-/// A data structure representing a file entry with its path and documentation. 
+/// A data structure representing a file entry with its path and documentation.
 #[derive(Debug, Deserialize)]
 struct FileEntry {
     /// The path of the file entry, uniquely identified in its tree.
@@ -92,7 +92,7 @@ struct FileDocInfo {
     /// The personality of the file, such as "Acutely Perceptive".
     personality: String,
     /// The joy associated with the file, such as "Enthusiastically".
-    joy: String, 
+    joy: String,
 }
 
 /// Represents raw data for a file or directory entry.
@@ -655,10 +655,10 @@ fn is_hidden(name: &std::ffi::OsStr) -> bool {
     name.to_string_lossy().starts_with('.')
 }
 
-/// Find the root of a project by searching for `.dirdocs.nu` files.
+/// Find the root of a project by searching for `.dirdocs.nuon` files.
 ///
 /// This function starts at the given `start` path and recursively checks
-/// parent directories for a file named `.dirdocs.nu`. If found, it returns
+/// parent directories for a file named `.dirdocs.nuon`. If found, it returns
 /// the path to that directory. If no such file is found within a reasonable
 /// range, it returns `None`.
 ///
@@ -667,7 +667,7 @@ fn is_hidden(name: &std::ffi::OsStr) -> bool {
 ///
 /// Returns:
 /// - An `Option<PathBuf>` containing the path to the project root if
-///   a `.dirdocs.nu` file is found; otherwise `None`.
+///   a `.dirdocs.nuon` file is found; otherwise `None`.
 ///
 /// Errors:
 /// - This function does not return explicit errors, but may panic
@@ -675,13 +675,13 @@ fn is_hidden(name: &std::ffi::OsStr) -> bool {
 ///
 /// Notes:
 /// - The search continues upwards through parent directories until
-///   either a `.dirdocs.nu` file is found or the root of the filesystem
+///   either a `.dirdocs.nuon` file is found or the root of the filesystem
 ///   is reached.
 /// ```
 fn find_project_root(start: &Path) -> Option<PathBuf> {
     let mut cur = start.to_path_buf();
     loop {
-        if cur.join(".dirdocs.nu").exists() {
+        if cur.join(".dirdocs.nuon").exists() {
             return Some(cur);
         }
         let parent = cur.parent()?.to_path_buf();
@@ -694,13 +694,13 @@ fn find_project_root(start: &Path) -> Option<PathBuf> {
 
 /// Load descriptions from a directory structure and return them as `FileDocInfo` in a `HashMap`.
 ///
-/// This function reads the `.dirdocs.nu` file to parse a directory structure and extracts
+/// This function reads the `.dirdocs.nuon` file to parse a directory structure and extracts
 /// descriptions, personality emojis, and joy fields from each file. It builds a mapping of file paths
 /// to `FileDocInfo` objects, which contain the extracted metadata. If any required fields are empty,
 /// the file is skipped.
 ///
 /// # Parameters:
-/// - `root`: The path to the directory where `.dirdocs.nu` is located.
+/// - `root`: The path to the directory where `.dirdocs.nuon` is located.
 ///
 /// # Returns:
 /// - A `HashMap<String, FileDocInfo>` containing the parsed descriptions.
@@ -710,11 +710,11 @@ fn find_project_root(start: &Path) -> Option<PathBuf> {
 ///   any errors from `serde_json::from_str`.
 ///
 /// # Notes:
-/// - The `.dirdocs.nu` file must be in the form of a JSON object with an `entries` field.
+/// - The `.dirdocs.nuon` file must be in the form of a JSON object with an `entries` field.
 /// - Empty fields are ignored to ensure valid output.
 fn load_descriptions(root: &Path) -> anyhow::Result<HashMap<String, FileDocInfo>> {
     let mut map: HashMap<String, FileDocInfo> = HashMap::new();
-    let s = fs::read_to_string(root.join(".dirdocs.nu"))?;
+    let s = fs::read_to_string(root.join(".dirdocs.nuon"))?;
     let parsed: DirdocsRoot = serde_json::from_str(&s)?;
 
     /// Handle a JSON value and convert it into a compact string representation.

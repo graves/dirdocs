@@ -288,8 +288,8 @@ fn cmd_init() -> anyhow::Result<()> {
 
 /// Handle the `cmd_run` subcommand.
 ///
-/// Loads and processes directory documentation files, using a template to generate structured content. 
-/// It parses configuration, reads file metadata, and uses the `handlebars` templating engine to render the prompt. 
+/// Loads and processes directory documentation files, using a template to generate structured content.
+/// It parses configuration, reads file metadata, and uses the `handlebars` templating engine to render the prompt.
 ///
 /// # Parameters:
 /// - `args`: A `RunArgs` struct containing command-line arguments, such as directory path and ignore patterns.
@@ -351,9 +351,9 @@ async fn cmd_run(args: RunArgs) -> anyhow::Result<()> {
     let (project_is_documented, project_doc_snippet) = readme_context(&root)?;
     debug!(project_is_documented=%project_is_documented, doc_snippet_len=project_doc_snippet.len(), "README context collected");
 
-    // Existing .dirdocs.nu
-    let dirdocs_path = root.join(".dirdocs.nu");
-    info!(path=%dirdocs_path.display(), "Loading existing .dirdocs.nu (if any)");
+    // Existing .dirdocs.nuon
+    let dirdocs_path = root.join(".dirdocs.nuon");
+    info!(path=%dirdocs_path.display(), "Loading existing .dirdocs.nuon (if any)");
     let existing_tree = load_existing_tree(&dirdocs_path, &root, &cwd);
 
     // For quick lookups when merging
@@ -610,7 +610,7 @@ async fn cmd_run(args: RunArgs) -> anyhow::Result<()> {
     }
 
     // Write as strict JSON (Nuon-compatible)
-    let dirdocs_path = root.join(".dirdocs.nu");
+    let dirdocs_path = root.join(".dirdocs.nuon");
     write_tree(&dirdocs_path, &new_root)?;
 
     info!("Done");
