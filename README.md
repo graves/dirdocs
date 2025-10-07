@@ -42,6 +42,8 @@ The result is stored in a `.dirdocs.nu` file at the project root — a **Nuon-co
 6. **Merge + write** — Updates `.dirdocs.nu` in place with new/changed entries, preserving older cached docs.
 7. **Works extremely well with the** [Qwen 3 4B model I Finetuned](https://huggingface.co/dougiefresh/jade_qwen3_4b) for **Systems Programming** related queries.
 
+> 💡 Use with the included `dls` and `dtree` binaries or replace Github commit messages with the [Chrome Extension](https://chromewebstore.google.com/detail/dirdocs-for-github/mlkaknhkcakopeghpgmnpdjdfcffbain?hl=en).
+
 ---
 
 ## 📦 Installation
